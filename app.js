@@ -2,13 +2,35 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 var logger = require('morgan');
+var mysql = require('mysql');
+//var heatmap = require('heatmap');
 
 var indexRouter = require('./routes/index');
 var impactsRouter = require('./routes/impacts');
 var locationRouter = require('./routes/location');
+var dataRouter = require('./routes/data');
 
 var app = express();
+
+//heatmap
+//heatmap();
+
+//create connection
+var db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'PlayerInfo'
+});
+db.connect((err) => {
+  if(err){
+    throw err;
+  }
+  console.log('Mysql Connected....');
+});
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -18,11 +40,13 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(bodyParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/impacts', impactsRouter);
 app.use('/location', locationRouter);
+app.use('/data',dataRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
